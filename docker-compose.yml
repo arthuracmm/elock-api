@@ -7,7 +7,7 @@ services:
       - .env
     environment:
       NODE_ENV: ${NODE_ENV}
-      DATABASE_URL: "postgres://${DB_USERNAME}:${DB_PASSWORD}@db:${DB_CONTAINER_PORT}/${DB_DATABASE}"
+      DATABASE_URL: "postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}"
     volumes:
       - ./migrations:/app/migrations
     depends_on:
@@ -21,4 +21,4 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_DATABASE}
     ports:
-      - "${DB_CONTAINER_PORT}:5432"
+      - "${DB_PORT}:5432"

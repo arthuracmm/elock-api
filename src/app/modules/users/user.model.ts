@@ -1,10 +1,11 @@
-import { Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Table({ tableName: 'users' })
 export class User extends Model<User> {
   @ApiProperty()
   @PrimaryKey
+  @AutoIncrement
   @Column({
     type: DataType.INTEGER,
   })
