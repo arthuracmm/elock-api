@@ -30,7 +30,20 @@ async function bootstrap() {
     .setTitle('Elock API')
     .setDescription('API para sistema de tranca IoT')
     .setVersion('1.0')
+    .addBearerAuth(  
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Insira o token JWT no formato Bearer <token>',
+        in: 'header',
+      },
+      'JWT-auth', 
+    )
+    .addTag('auth')
     .addTag('users')
+    .addTag('door-locks')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import * as bcrypt from 'bcrypt';
 import { User } from './user.model';
 
 
@@ -7,10 +8,14 @@ import { User } from './user.model';
 export class UsersService {
   constructor(
     @InjectModel(User) private userModel: typeof User,
-  ) {}
+  ) { }
 
   async create(data: Partial<User>): Promise<User> {
-    return this.userModel.create(data as User);
+    const hashedPassword = await bcrypt.hash(data.password!, 10);
+    return this.userModel.create({
+      ...data,
+      password: hashedPassword,
+    } as User);
   }
 
   async findAll(): Promise<User[]> {
@@ -22,6 +27,11 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ where: { email } });
+  }
+
 
   async update(id: string, data: Partial<User>): Promise<User> {
     const user = await this.findOne(id);

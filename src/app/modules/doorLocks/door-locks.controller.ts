@@ -1,0 +1,50 @@
+import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CreateDoorLocksDto } from './dto/createDoorLocks.dto';
+import { updateDoorLocksDto } from './dto/updateDoorLocks.dto';
+import { DoorLocksService } from './door-locks.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+
+@ApiTags('door-locks')
+@Controller('door-locks')
+export class DoorLocksController {
+  constructor(private readonly doorLocksService: DoorLocksService) { }
+
+  @ApiOperation({ summary: 'Criar um nova fechadura' })
+  @ApiResponse({ status: 201, description: 'Fechadura criado com sucesso.' })
+  @UseGuards(JwtAuthGuard)
+  @Post()
+  create(@Body() createDto: CreateDoorLocksDto, @Req() req: any) {
+    return this.doorLocksService.create({
+      ...createDto,
+      createFor: req.user.id,
+    });
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Listar todos os fechaduras' })
+  async findAll() {
+    return this.doorLocksService.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Buscar fechadura por ID' })
+  async findOne(@Param('id') id: string) {
+    return this.doorLocksService.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put(':id')
+  @ApiOperation({ summary: 'Atualizar um fechadura pelo ID' })
+  async update(@Param('id') id: string, @Body() UpdateDoorLocksDto: updateDoorLocksDto) {
+    return this.doorLocksService.update(id, UpdateDoorLocksDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  @ApiOperation({ summary: 'Remover um fechadura pelo ID' })
+  async remove(@Param('id') id: string) {
+    await this.doorLocksService.remove(id);
+    return { deleted: id };
+  }
+}
