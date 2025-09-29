@@ -1,11 +1,12 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateDoorLocksDto } from './dto/createDoorLocks.dto';
 import { updateDoorLocksDto } from './dto/updateDoorLocks.dto';
 import { DoorLocksService } from './door-locks.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('door-locks')
+@ApiBearerAuth('access-token') 
 @Controller('door-locks')
 export class DoorLocksController {
   constructor(private readonly doorLocksService: DoorLocksService) { }

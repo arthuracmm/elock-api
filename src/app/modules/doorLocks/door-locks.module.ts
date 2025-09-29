@@ -5,9 +5,10 @@ import { DoorLocksController} from './door-locks.controller';
 import { DoorLocks } from './door-locks.model';
 import { ConfigModule } from '@nestjs/config';
 import { User } from '../users/user.model';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([DoorLocks, User]), ConfigModule],
+  imports: [SequelizeModule.forFeature([DoorLocks, User]), ConfigModule, AuthModule],
   controllers: [DoorLocksController],
   providers: [DoorLocksService],
 })

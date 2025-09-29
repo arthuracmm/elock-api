@@ -1,4 +1,4 @@
-// modules/auth/auth.module.ts
+// auth.module.ts
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -7,18 +7,24 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt.strategy';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from '../users/user.model';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }), // 🔥 carrega o .env
     SequelizeModule.forFeature([User]),
     PassportModule,
-    JwtModule.register({
-      secret: 'seuSegredoJWT',
-      signOptions: { expiresIn: '1d' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'), // 🔥 carrega com segurança
+        signOptions: { expiresIn: '1d' },
+      }),
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService], 
+  providers: [AuthService, JwtStrategy, ConfigService],
+  exports: [AuthService],
 })
 export class AuthModule {}

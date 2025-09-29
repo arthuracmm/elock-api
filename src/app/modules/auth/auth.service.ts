@@ -24,7 +24,6 @@ export class AuthService {
       throw new UnauthorizedException('Senha incorreta');
     }
 
-    // Retorna o user (sem a senha) se válido
     const { password: _password, ...userWithoutPassword } = user.toJSON();
     return userWithoutPassword;
   }
