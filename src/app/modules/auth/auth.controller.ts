@@ -2,7 +2,7 @@
 import { Controller, Post, Body, UnauthorizedException, UseGuards, Get, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginUserAuthDto } from './dto/loginUserAuth.dto';
 
 @ApiTags('auth')
@@ -21,7 +21,7 @@ export class AuthController {
         return this.authService.login(user);
     }
 
-
+    @ApiBearerAuth('jwt-auth')
     @UseGuards(JwtAuthGuard)
     @Get('profile')
     getProfile(@Req() req: any) {

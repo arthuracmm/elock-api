@@ -39,7 +39,7 @@ async function bootstrap() {
         description: 'Insira o token JWT no formato Bearer <token>',
         in: 'header',
       },
-      'JWT-auth', 
+      'jwt-auth', 
     )
     .addTag('auth')
     .addTag('users')

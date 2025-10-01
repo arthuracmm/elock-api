@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateDoorLocksDto } from './dto/createDoorLocks.dto';
 import { updateDoorLocksDto } from './dto/updateDoorLocks.dto';
 import { DoorLocksService } from './door-locks.service';
@@ -12,6 +12,7 @@ export class DoorLocksController {
 
   @ApiOperation({ summary: 'Criar um nova fechadura' })
   @ApiResponse({ status: 201, description: 'Fechadura criado com sucesso.' })
+  @ApiBearerAuth('jwt-auth')
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createDto: CreateDoorLocksDto, @Req() req: any) {
@@ -33,6 +34,7 @@ export class DoorLocksController {
     return this.doorLocksService.findOne(id);
   }
 
+  @ApiBearerAuth('jwt-auth')
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   @ApiOperation({ summary: 'Atualizar um fechadura pelo ID' })
@@ -40,6 +42,7 @@ export class DoorLocksController {
     return this.doorLocksService.update(id, UpdateDoorLocksDto);
   }
 
+  @ApiBearerAuth('jwt-auth')
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   @ApiOperation({ summary: 'Remover um fechadura pelo ID' })
