@@ -25,7 +25,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // 🔹 Swagger config
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Elock API')
     .setDescription('API para sistema de tranca IoT')
@@ -39,7 +38,7 @@ async function bootstrap() {
         description: 'Insira o token JWT no formato Bearer <token>',
         in: 'header',
       },
-      'jwt-auth', 
+      'JWT-auth', 
     )
     .addTag('auth')
     .addTag('users')

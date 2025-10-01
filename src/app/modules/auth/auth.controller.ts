@@ -6,6 +6,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { LoginUserAuthDto } from './dto/loginUserAuth.dto';
 
 @ApiTags('auth')
+@ApiBearerAuth('access-token') 
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }

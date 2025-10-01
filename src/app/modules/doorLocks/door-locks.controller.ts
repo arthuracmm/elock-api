@@ -6,6 +6,7 @@ import { DoorLocksService } from './door-locks.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('door-locks')
+@ApiBearerAuth('access-token') 
 @Controller('door-locks')
 export class DoorLocksController {
   constructor(private readonly doorLocksService: DoorLocksService) { }
