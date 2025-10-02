@@ -10,7 +10,7 @@ export class DoorLocks extends Model<DoorLocks> {
   @Column({
     type: DataType.INTEGER,
   })
-  declare id: string;
+  declare id: number;
 
   @ApiProperty()
   @Column({ type: DataType.STRING, allowNull: false })

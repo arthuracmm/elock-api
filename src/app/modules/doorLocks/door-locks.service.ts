@@ -1,16 +1,28 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { DoorLocks } from './door-locks.model';
+import { PermissionsService } from '../permissions/permissions.service';
 
 
 @Injectable()
 export class DoorLocksService {
   constructor(
-    @InjectModel(DoorLocks) private doorLocksModel: typeof DoorLocks,
+    @InjectModel(DoorLocks)
+    private doorLocksModel: typeof DoorLocks,
+
+    @Inject(forwardRef(() => PermissionsService))
+    private permissionService: PermissionsService,
   ) {}
 
-  async create(data: Partial<DoorLocks>): Promise<DoorLocks> {
-    return this.doorLocksModel.create(data as DoorLocks);
+   async create(data: Partial<DoorLocks>) {
+    const doorLock = await this.doorLocksModel.create(data as DoorLocks);
+
+    await this.permissionService.create({
+      idDoorlock: doorLock.id,
+      levelAcess: 'admin',
+    });
+
+    return doorLock;
   }
 
   async findAll(): Promise<DoorLocks[]> {
