@@ -4,18 +4,17 @@ import { DoorLocksService } from './door-locks.service';
 import { DoorLocksController } from './door-locks.controller';
 import { DoorLocks } from './door-locks.model';
 import { ConfigModule } from '@nestjs/config';
-import { User } from '../users/user.model';
 import { AuthModule } from '../auth/auth.module';
-import { Permission } from '../permissions/permissions.model';
-import { PermissionModule } from '../permissions/permission.module';
+import { DoorLockUserModule } from '../doorLockUsers/door-locks-users.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([DoorLocks, User, Permission]),
+  imports: [SequelizeModule.forFeature([DoorLocks]),
     ConfigModule,
     AuthModule,
-    forwardRef(() => PermissionModule)
+  forwardRef(() => DoorLockUserModule),
   ],
   controllers: [DoorLocksController],
   providers: [DoorLocksService],
+  exports: [DoorLocksService],
 })
 export class DoorLocksModule { }

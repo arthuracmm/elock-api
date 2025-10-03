@@ -2,7 +2,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('door-locks', {
+    await queryInterface.createTable('doorLocks', {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -21,16 +21,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      createFor: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -45,6 +35,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('door-locks');
+    await queryInterface.dropTable('doorLocks');
   }
 };

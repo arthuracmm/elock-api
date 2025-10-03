@@ -1,21 +1,21 @@
 import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
-import { DoorLocksModule } from './doorLocks/door-locks.module';
 import { AuthModule } from './auth/auth.module';
-import { PermissionModule } from './permissions/permission.module';
+import { DoorLocksModule } from './doorLocks/door-locks.module';
+import { DoorLockUserModule } from './doorLockUsers/door-locks-users.module';
 
 @Module({
   imports: [
     UsersModule,
     DoorLocksModule,
     AuthModule,
-    PermissionModule
+    DoorLockUserModule
   ],
   exports: [
     UsersModule,
     DoorLocksModule,
     AuthModule,
-    PermissionModule
+    DoorLockUserModule
   ],
 })
 export class IndexModule { }

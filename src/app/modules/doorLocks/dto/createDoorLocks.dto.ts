@@ -1,6 +1,6 @@
 // src/app/modules/users/dto/create-user.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import { IsInt, IsNotEmpty } from 'class-validator';
 
 export class CreateDoorLocksDto {
   @ApiProperty({

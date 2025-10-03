@@ -1,7 +1,8 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { DoorLocks } from './door-locks.model';
-import { PermissionsService } from '../permissions/permissions.service';
+import { DoorLockUserService } from '../doorLockUsers/door-locks-users.service';
+import { CreateDoorLocksDto } from './dto/createDoorLocks.dto';
 
 
 @Injectable()
@@ -10,20 +11,23 @@ export class DoorLocksService {
     @InjectModel(DoorLocks)
     private doorLocksModel: typeof DoorLocks,
 
-    @Inject(forwardRef(() => PermissionsService))
-    private permissionService: PermissionsService,
-  ) {}
+    @Inject(forwardRef(() => DoorLockUserService))
+    private doorLockUserService: DoorLockUserService,
+  ) { }
 
-   async create(data: Partial<DoorLocks>) {
-    const doorLock = await this.doorLocksModel.create(data as DoorLocks);
+  async create(data: CreateDoorLocksDto, userId: number) {
+    const createdDoorLock = await this.doorLocksModel.create(data as DoorLocks);
 
-    await this.permissionService.create({
-      idDoorlock: doorLock.id,
-      levelAcess: 'admin',
+    await this.doorLockUserService.create({
+      userId,
+      doorLockId: createdDoorLock.id,
+      paper: 'owner',
+      status: 'active',
     });
 
-    return doorLock;
+    return createdDoorLock;
   }
+
 
   async findAll(): Promise<DoorLocks[]> {
     return this.doorLocksModel.findAll();

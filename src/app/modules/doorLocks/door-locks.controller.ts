@@ -11,17 +11,15 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 export class DoorLocksController {
   constructor(private readonly doorLocksService: DoorLocksService) { }
 
+  @Post()
   @ApiOperation({ summary: 'Criar um nova fechadura' })
   @ApiResponse({ status: 201, description: 'Fechadura criado com sucesso.' })
   @ApiBearerAuth('jwt-auth')
   @UseGuards(JwtAuthGuard)
-  @Post()
-  create(@Body() createDto: CreateDoorLocksDto, @Req() req: any) {
-    return this.doorLocksService.create({
-      ...createDto,
-      createFor: req.user.id,
-    });
-  }
+  create(@Body() createDoorLockDto: CreateDoorLocksDto, @Req() req: any) {
+  const userId = req.user.id; 
+  return this.doorLocksService.create(createDoorLockDto, userId);
+}
 
   @Get()
   @ApiOperation({ summary: 'Listar todos os fechaduras' })

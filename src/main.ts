@@ -43,7 +43,7 @@ async function bootstrap() {
     .addTag('auth')
     .addTag('users')
     .addTag('door-locks')
-    .addTag('permissions')
+    .addTag('door-lock-user')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
