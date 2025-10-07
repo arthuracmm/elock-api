@@ -3,9 +3,12 @@ import { AppModule } from './app/app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser()); 
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -29,7 +32,7 @@ async function bootstrap() {
     .setTitle('Elock API')
     .setDescription('API para sistema de tranca IoT')
     .setVersion('1.0')
-    .addBearerAuth(  
+    .addBearerAuth(
       {
         type: 'http',
         scheme: 'bearer',
@@ -38,7 +41,7 @@ async function bootstrap() {
         description: 'Insira o token JWT no formato Bearer <token>',
         in: 'header',
       },
-      'jwt-auth', 
+      'jwt-auth',
     )
     .addTag('auth')
     .addTag('users')

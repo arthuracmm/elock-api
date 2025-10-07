@@ -11,14 +11,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // 🔥 carrega o .env
+    ConfigModule.forRoot({ isGlobal: true }), 
     SequelizeModule.forFeature([User]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'), // 🔥 carrega com segurança
+        secret: configService.get<string>('JWT_SECRET'), 
         signOptions: { expiresIn: '1d' },
       }),
     }),
