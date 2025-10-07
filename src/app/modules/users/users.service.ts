@@ -19,17 +19,24 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userModel.findAll();
+    return this.userModel.findAll({
+      attributes: { exclude: ['password'] },
+    });
   }
 
   async findOne(id: string): Promise<User> {
-    const user = await this.userModel.findByPk(id);
+    const user = await this.userModel.findByPk(id, {
+      attributes: { exclude: ['password'] },
+    });
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ where: { email } });
+    return this.userModel.findOne({
+      where: { email },
+      attributes: { exclude: ['password'] },
+    });
   }
 
 
