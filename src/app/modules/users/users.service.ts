@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
 import { User } from './user.model';
+import { DoorLocks } from '../doorLocks/door-locks.model';
+import { DoorLockUser } from '../doorLockUsers/door-locks-users.model';
 
 
 @Injectable()
@@ -27,6 +29,21 @@ export class UsersService {
   async findOne(id: string): Promise<User> {
     const user = await this.userModel.findByPk(id, {
       attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: DoorLockUser,
+          include: [
+            {
+              model: DoorLocks,
+            },
+            {
+              model: User,
+              as: 'sharedByUser',
+              attributes: ['id', 'name', 'email'],
+            }
+          ]
+        }
+      ],
     });
     if (!user) throw new NotFoundException('User not found');
     return user;

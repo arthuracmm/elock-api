@@ -1,5 +1,7 @@
-import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, BelongsToMany, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
+import { DoorLockUser } from '../doorLockUsers/door-locks-users.model';
+import { DoorLocks } from '../doorLocks/door-locks.model';
 
 @Table({ tableName: 'users' })
 export class User extends Model<User> {
@@ -9,7 +11,7 @@ export class User extends Model<User> {
   @Column({
     type: DataType.INTEGER,
   })
-  declare id: string;
+  declare id: number;
 
   @ApiProperty()
   @Column({ type: DataType.STRING, allowNull: false })
@@ -21,4 +23,10 @@ export class User extends Model<User> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   declare password: string;
+
+  @HasMany(() => DoorLockUser, 'userId')
+  doorLockUsers: DoorLockUser[];
+
+  @BelongsToMany(() => DoorLocks, () => DoorLockUser, 'userId', 'doorLockId')
+  doorLocks: DoorLocks[];
 }
