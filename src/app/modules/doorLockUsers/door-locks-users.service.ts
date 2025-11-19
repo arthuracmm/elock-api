@@ -33,4 +33,8 @@ export class DoorLockUserService {
     const doorLockUser = await this.findOne(id);
     await doorLockUser.destroy();
   }
+
+  async findByUserAndLock(userId: number, doorLockId: number) {
+    return this.dorLockUserModel.findOne({ where: { userId, doorLockId } });
+  }
 }

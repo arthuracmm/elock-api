@@ -7,6 +7,7 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { DoorLocks } from './door-locks.model';
 import { DoorLockUserService } from '../doorLockUsers/door-locks-users.service';
+import { DoorLocksGateway } from './door-locks.gateway';
 import { User } from '../users/user.model';
 import { CreateDoorLocksDto } from './dto/createDoorLocks.dto';
 import { DoorLockUser } from '../doorLockUsers/door-locks-users.model';
@@ -19,6 +20,8 @@ export class DoorLocksService {
 
     @Inject(forwardRef(() => DoorLockUserService))
     private doorLockUserService: DoorLockUserService,
+    @Inject(forwardRef(() => DoorLocksGateway))
+    private doorLocksGateway?: DoorLocksGateway,
   ) {}
 
   async create(data: CreateDoorLocksDto, userId: number) {
@@ -31,6 +34,9 @@ export class DoorLocksService {
       status: 'active',
     });
 
+    try {
+      this.doorLocksGateway?.emitDoorLockUpdated(createdDoorLock);
+    } catch (err) {}
     return createdDoorLock;
   }
 
@@ -79,11 +85,18 @@ export class DoorLocksService {
 
   async update(id: string, data: Partial<DoorLocks>): Promise<DoorLocks> {
     const doorLocks = await this.findOne(id);
-    return doorLocks.update(data);
+    const updated = await doorLocks.update(data);
+    try {
+      this.doorLocksGateway?.emitDoorLockUpdated(updated);
+    } catch (err) {}
+    return updated;
   }
 
   async remove(id: string): Promise<void> {
     const doorLocks = await this.findOne(id);
     await doorLocks.destroy();
+    try {
+      this.doorLocksGateway?.emitDoorLockRemoved(Number(id));
+    } catch (err) {}
   }
 }
