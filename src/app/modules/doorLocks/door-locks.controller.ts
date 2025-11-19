@@ -23,14 +23,19 @@ export class DoorLocksController {
 
   @Get()
   @ApiOperation({ summary: 'Listar todos os fechaduras' })
-  async findAll() {
-    return this.doorLocksService.findAll();
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Req() req: any) {
+    const userId = req.user?.id;
+    return this.doorLocksService.findAllForUser(userId);
   }
 
+  @ApiBearerAuth('jwt-auth')
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Buscar fechadura por ID' })
-  async findOne(@Param('id') id: string) {
-    return this.doorLocksService.findOne(id);
+  async findOne(@Param('id') id: string, @Req() req: any) {
+    const userId = req.user?.id;
+    return this.doorLocksService.findOneForUser(id, userId);
   }
 
   @ApiBearerAuth('jwt-auth')
