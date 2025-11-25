@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(cookieParser()); 
+  app.use(cookieParser());
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -47,6 +47,7 @@ async function bootstrap() {
     .addTag('users')
     .addTag('door-locks')
     .addTag('door-lock-user')
+    .addTag('esp32')
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

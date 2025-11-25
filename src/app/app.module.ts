@@ -6,6 +6,7 @@ import { IndexModule } from './modules/index.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { Esp32Module } from './modules/esp32/esp32.module';
 
 @Module({
   imports: [
@@ -19,8 +20,11 @@ import { AppService } from './app.service';
     }),
     ScheduleModule.forRoot(),
     IndexModule,
+    Esp32Module,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+  ],
 })
-export class AppModule {}
+export class AppModule { }

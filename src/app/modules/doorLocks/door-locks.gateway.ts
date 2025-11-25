@@ -1,13 +1,16 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import {
   WebSocketGateway,
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { DoorLockUserService } from '../doorLockUsers/door-locks-users.service';
+import { DoorLocksService } from './door-locks.service';
+import { Esp32Gateway } from 'src/ws.gateway';
 
 @WebSocketGateway({
   cors: {
@@ -24,7 +27,10 @@ export class DoorLocksGateway implements OnGatewayConnection, OnGatewayDisconnec
   constructor(
     private jwtService: JwtService,
     private doorLockUserService: DoorLockUserService,
-  ) {}
+    @Inject(forwardRef(() => DoorLocksService))
+    private doorLocksService: DoorLocksService,
+    private esp32Gateway: Esp32Gateway,
+  ) { }
 
   async handleConnection(client: Socket) {
     try {
@@ -35,10 +41,22 @@ export class DoorLocksGateway implements OnGatewayConnection, OnGatewayDisconnec
         return;
       }
 
-      const payload: any = this.jwtService.verify(token);
+      this.logger.log(`[WS] Tentando conectar: ${client.id}`);
+
+      let payload: any;
+      try {
+        payload = this.jwtService.verify(token);
+      } catch (err) {
+        this.logger.error(`[WS] Erro ao verificar token: ${err.message}`);
+        this.logger.error(`[WS] Token recebido: ${token.substring(0, 50)}...`);
+        client.disconnect(true);
+        return;
+      }
+
       const userId = payload?.sub || payload?.id;
       if (!userId) {
         this.logger.warn(`Token inválido - desconectando ${client.id}`);
+        this.logger.warn(`Payload do token: ${JSON.stringify(payload)}`);
         client.disconnect(true);
         return;
       }
@@ -57,6 +75,7 @@ export class DoorLocksGateway implements OnGatewayConnection, OnGatewayDisconnec
           }
           client.join(`lock:${lockId}`);
           client.emit('joined-lock', { lockId });
+          this.logger.log(`[WS] User ${userId} joined lock:${lockId}`);
         } catch (err) {
           this.logger.error('Erro join-lock', err);
         }
@@ -64,9 +83,11 @@ export class DoorLocksGateway implements OnGatewayConnection, OnGatewayDisconnec
 
       client.on('leave-lock', ({ lockId }) => {
         client.leave(`lock:${lockId}`);
+        this.logger.log(`[WS] User ${userId} left lock:${lockId}`);
       });
     } catch (err) {
-      this.logger.warn(`Falha ao validar token socket: ${err.message}`);
+      this.logger.error(`[WS] Falha ao validar token socket: ${err.message}`);
+      this.logger.error(`[WS] Stack: ${err.stack}`);
       client.disconnect(true);
     }
   }
@@ -74,6 +95,45 @@ export class DoorLocksGateway implements OnGatewayConnection, OnGatewayDisconnec
   handleDisconnect(client: Socket) {
     const userId = client.data?.userId;
     this.logger.log(`[WS] Cliente desconectado: ${client.id} (user:${userId})`);
+  }
+
+  @SubscribeMessage('toggle-lock')
+  async handleToggleLock(client: Socket, payload: { lockId: number; status: string }) {
+    try {
+      const userId = client.data?.userId;
+      if (!userId) {
+        client.emit('error', { message: 'Não autenticado' });
+        return;
+      }
+
+      const { lockId, status } = payload;
+      this.logger.log(`[WS] toggle-lock: user:${userId} lock:${lockId} status:${status}`);
+
+      // Verifica se o usuário tem acesso à fechadura
+      const access = await this.doorLockUserService.findByUserAndLock(userId, lockId);
+      if (!access) {
+        client.emit('error', { message: 'Acesso negado a essa fechadura' });
+        return;
+      }
+
+      // Atualiza o status da fechadura
+      await this.doorLocksService.update(String(lockId), { status });
+
+      // Envia comando para o ESP32
+      if (status === 'on') {
+        this.logger.log(`[WS] Enviando comando de abertura para ESP32 (lock:${lockId})`);
+        this.esp32Gateway.sendOpenCommand(lockId);
+      } else if (status === 'off') {
+        this.logger.log(`[WS] Enviando comando de fechamento para ESP32 (lock:${lockId})`);
+        this.esp32Gateway.sendCloseCommand(lockId);
+      }
+
+      // O método update já emite o evento door-lock-updated via emitDoorLockUpdated
+      this.logger.log(`[WS] Status atualizado: lock:${lockId} -> ${status}`);
+    } catch (err) {
+      this.logger.error('Erro toggle-lock', err);
+      client.emit('error', { message: 'Erro ao atualizar status' });
+    }
   }
 
   emitDoorLockUpdated(lock: any) {
