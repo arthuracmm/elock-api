@@ -9,13 +9,13 @@ import { DoorLockUserModule } from './doorLockUsers/door-locks-users.module';
     UsersModule,
     DoorLocksModule,
     AuthModule,
-    DoorLockUserModule
+    DoorLockUserModule,
   ],
   exports: [
     UsersModule,
     DoorLocksModule,
     AuthModule,
-    DoorLockUserModule
+    DoorLockUserModule,
   ],
 })
 export class IndexModule { }

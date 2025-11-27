@@ -22,7 +22,7 @@ export class DoorLocksService {
     private doorLockUserService: DoorLockUserService,
     @Inject(forwardRef(() => DoorLocksGateway))
     private doorLocksGateway?: DoorLocksGateway,
-  ) {}
+  ) { }
 
   async create(data: CreateDoorLocksDto, userId: number) {
     const createdDoorLock = await this.doorLocksModel.create(data as DoorLocks);
@@ -36,7 +36,7 @@ export class DoorLocksService {
 
     try {
       this.doorLocksGateway?.emitDoorLockUpdated(createdDoorLock);
-    } catch (err) {}
+    } catch (err) { }
     return createdDoorLock;
   }
 
@@ -88,7 +88,7 @@ export class DoorLocksService {
     const updated = await doorLocks.update(data);
     try {
       this.doorLocksGateway?.emitDoorLockUpdated(updated);
-    } catch (err) {}
+    } catch (err) { }
     return updated;
   }
 
@@ -97,6 +97,106 @@ export class DoorLocksService {
     await doorLocks.destroy();
     try {
       this.doorLocksGateway?.emitDoorLockRemoved(Number(id));
-    } catch (err) {}
+    } catch (err) { }
+  }
+
+  // --- Statistics Methods (Mock Data) ---
+
+  async getOverviewStats(userId: number) {
+    const doorLocks = await this.findAllForUser(userId);
+    const totalLocks = doorLocks.length;
+    const activeLocks = doorLocks.filter((lock) => lock.status === 'on').length;
+    const inactiveLocks = totalLocks - activeLocks;
+
+    // Mock total accesses (random number between 50 and 200)
+    const totalAccesses = Math.floor(Math.random() * 150) + 50;
+
+    return {
+      totalLocks,
+      activeLocks,
+      inactiveLocks,
+      totalAccesses,
+    };
+  }
+
+  async getUsageTimeline(userId: number) {
+    // Mock timeline data for the last 7 days
+    const now = new Date();
+    const timeline: Array<{ date: string; opens: number; closes: number }> = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+
+      timeline.push({
+        date: dateStr,
+        opens: Math.floor(Math.random() * 20) + 5,
+        closes: Math.floor(Math.random() * 20) + 5,
+      });
+    }
+
+    return timeline;
+  }
+
+  async getMostUsedLocks(userId: number) {
+    const doorLocks = await this.findAllForUser(userId);
+
+    // Mock usage count for each lock
+    const locksWithUsage = doorLocks.map((lock) => ({
+      id: lock.id,
+      name: lock.name,
+      usageCount: Math.floor(Math.random() * 100) + 10,
+    }));
+
+    // Sort by usage count descending
+    locksWithUsage.sort((a, b) => b.usageCount - a.usageCount);
+
+    // Return top 5
+    return locksWithUsage.slice(0, 5);
+  }
+
+  async getStatusDistribution(userId: number) {
+    const doorLocks = await this.findAllForUser(userId);
+    const active = doorLocks.filter((lock) => lock.status === 'on').length;
+    const inactive = doorLocks.length - active;
+
+    return [
+      { name: 'Ativas', value: active },
+      { name: 'Inativas', value: inactive },
+    ];
+  }
+
+  async getRecentActivity(userId: number) {
+    const doorLocks = await this.findAllForUser(userId);
+    const activities: Array<{
+      id: number;
+      lockName: string;
+      action: string;
+      user: string;
+      timestamp: string;
+    }> = [];
+    const actions = ['OPEN', 'CLOSE'];
+    const users = ['Hugo', 'Maria', 'João', 'Ana'];
+
+    // Generate 10 random activities
+    for (let i = 0; i < 10; i++) {
+      const randomLock =
+        doorLocks[Math.floor(Math.random() * doorLocks.length)];
+      if (!randomLock) continue;
+
+      const timestamp = new Date();
+      timestamp.setHours(timestamp.getHours() - i);
+
+      activities.push({
+        id: i + 1,
+        lockName: randomLock.name,
+        action: actions[Math.floor(Math.random() * actions.length)],
+        user: users[Math.floor(Math.random() * users.length)],
+        timestamp: timestamp.toISOString(),
+      });
+    }
+
+    return activities;
   }
 }

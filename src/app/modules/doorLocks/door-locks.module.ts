@@ -2,6 +2,7 @@ import { forwardRef, Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DoorLocksService } from './door-locks.service';
 import { DoorLocksController } from './door-locks.controller';
+import { StatisticsController } from './statistics.controller';
 import { DoorLocks } from './door-locks.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
@@ -24,7 +25,7 @@ import { JwtModule } from '@nestjs/jwt';
     }),
     forwardRef(() => DoorLockUserModule),
   ],
-  controllers: [DoorLocksController],
+  controllers: [DoorLocksController, StatisticsController],
   providers: [DoorLocksService, DoorLocksGateway],
   exports: [DoorLocksService],
 })
