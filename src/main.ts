@@ -19,11 +19,10 @@ async function bootstrap() {
   );
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT') || 3000;
-  const appClient = configService.get<string>('APP_CLIENT');
+  const port = configService.get<number>('PORT') || 8000;
 
   app.enableCors({
-    origin: `${appClient}`,
+    origin: `http://localhost:3001`,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
